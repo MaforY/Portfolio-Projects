@@ -189,6 +189,38 @@ join Covid_Portfolio_Project..Covid_Vaccinations as V
 	and D.date = V.date
 where D.continent<>''
 
+	
+-- EDA for visualization on Tableau Public
+-- 1) sum total of cases vs percentage covid deaths
+
+select sum(cast(total_cases as float)) as GTotal_Infected, sum(cast(total_deaths as float)) as GTotal_deaths,
+(sum(cast(total_deaths as float))/sum(nullif(cast(total_cases as float),0)))*100 as TDeathpercentage
+from Covid_Portfolio_Project..Covid_Deaths
+where continent <>''
+order by 1,2;
+
+-- 2. sum of new deaths per location factoring in that europe is part of the european union
+select location, sum(cast(new_deaths as float)) as Totaldeathcount
+from Covid_Portfolio_Project..Covid_Deaths
+where continent = ''
+and location not in ('World', 'European Union', 'International')
+group by location
+order by Totaldeathcount desc;
+
+-- 3. Viewing the maximum cases per location as well as the maximum percentage of their population infected
+select location, population, max(total_cases) as Highestinfectioncount,
+max(cast(total_cases as float)/nullif(population,0))*100 as Percentpoinfeted
+from Covid_Portfolio_Project..Covid_Deaths
+group by location, population
+order by Highestinfectioncount desc;
+
+-- 4. viewing the maximum infections percountry over the time period coverd by data
+
+select location, date, population, max(total_cases) as Highestinfectioncount,
+max(cast(total_cases as float)/nullif(population,0))*100 as Percentpoinfeted
+from Covid_Portfolio_Project..Covid_Deaths
+group by location,population, date
+order by Highestinfectioncount desc;
 
 
 DROP VIEW maxdeathcount;
